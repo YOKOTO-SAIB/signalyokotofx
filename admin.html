@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — NEXUS SIGNAL</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000;--bg2:#080808;--card:#0d0d0d;--card2:#111;--border:#1c1c1c;--border2:#252525;
+  --blue:#2563ff;--blue2:#60a5fa;--yellow:#f5c518;--green:#22c55e;--red:#ef4444;--violet:#a855f7;
+  --text:#fff;--dim:#888;--dim2:#555;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+/* SIDEBAR */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:0;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+@media(max-width:900px){.sidebar{display:none}}
+.sb-brand{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
+.sb-logo{display:flex;align-items:center;gap:9px}
+.sb-icon{width:32px;height:32px;border-radius:7px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:14px}
+.sb-name{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.12em;background:linear-gradient(90deg,#fff,var(--blue2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sb-role{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--yellow);letter-spacing:.14em;margin-top:2px}
+
+.nav-links{padding:12px 10px;flex:1}
+.nav-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;cursor:pointer;transition:all .2s;font-size:.88rem;font-weight:500;color:var(--dim);margin-bottom:2px;user-select:none}
+.nav-link:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.nav-link.on{background:rgba(37,99,255,.12);color:var(--blue2)}
+.nav-link .ico{font-size:1rem;width:20px;text-align:center}
+.sb-logout{padding:12px 10px;border-top:1px solid var(--border)}
+.logout-btn{width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:.62rem;cursor:pointer;transition:all .2s;letter-spacing:.06em}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+
+/* MAIN */
+.main{overflow:hidden}
+.topbar{background:rgba(0,0,0,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.12em;color:var(--blue2)}
+.topbar-info{display:flex;align-items:center;gap:12px}
+.admin-chip{display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid rgba(245,197,24,.3);border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--yellow);letter-spacing:.08em}
+.admin-chip .dot{width:5px;height:5px;border-radius:50%;background:var(--yellow);animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+.content{padding:24px;max-width:1200px}
+
+/* SECTIONS */
+.section{display:none}.section.on{display:block}
+
+/* STATS OVERVIEW */
+.overview-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+@media(max-width:800px){.overview-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.overview-grid{grid-template-columns:1fr}}
+.ov-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden}
+.ov-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.ov-card.blue::before{background:var(--blue)}.ov-card.green::before{background:var(--green)}.ov-card.yellow::before{background:var(--yellow)}.ov-card.violet::before{background:var(--violet)}
+.ov-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--dim);letter-spacing:.1em;margin-bottom:10px}
+.ov-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.06em}
+.ov-card.blue .ov-num{color:var(--blue2)}.ov-card.green .ov-num{color:var(--green)}.ov-card.yellow .ov-num{color:var(--yellow)}.ov-card.violet .ov-num{color:var(--violet)}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:18px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:18px;right:18px;height:1px;background:linear-gradient(90deg,transparent,rgba(37,99,255,.3),transparent)}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.card-title{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:.16em;color:var(--blue2);display:flex;align-items:center;gap:8px}
+.card-title .bar{width:3px;height:12px;border-radius:2px;background:var(--blue)}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.85rem;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#1d4ed8;box-shadow:0 0 16px rgba(37,99,255,.35)}
+.btn-yellow{background:rgba(245,197,24,.12);color:var(--yellow);border:1px solid rgba(245,197,24,.3)}.btn-yellow:hover{background:rgba(245,197,24,.2)}
+.btn-red{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3)}.btn-red:hover{background:rgba(239,68,68,.18)}
+.btn-green{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3)}.btn-green:hover{background:rgba(34,197,94,.18)}
+.btn-ghost{background:transparent;color:var(--dim);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--dim);color:var(--text)}
+.btn-sm{padding:5px 12px;font-size:.78rem}
+
+/* FIELDS */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field label{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+.field input,.field select,.field textarea{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;outline:none;transition:border-color .2s;width:100%;-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,255,.1)}
+.field select option{background:#111}
+.field textarea{resize:vertical;min-height:70px}
+.field-hint{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--dim);margin-top:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* TOKEN CARDS */
+.token-list{display:flex;flex-direction:column;gap:10px}
+.token-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;cursor:pointer;transition:all .2s;position:relative}
+.token-card:hover{border-color:rgba(37,99,255,.4);box-shadow:0 0 12px rgba(37,99,255,.08)}
+.token-card-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.tc-name{font-weight:700;font-size:.95rem;min-width:120px}
+.tc-token{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--yellow);background:rgba(245,197,24,.06);border:1px solid rgba(245,197,24,.15);padding:4px 10px;border-radius:6px;letter-spacing:.04em}
+.tc-status{padding:3px 10px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.08em;border:1px solid}
+.tc-status.active{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:var(--green)}
+.tc-status.pending{background:rgba(245,197,24,.1);border-color:rgba(245,197,24,.3);color:var(--yellow)}
+.tc-status.expired{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:var(--red)}
+.tc-meta{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tc-info{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--dim)}
+.tc-actions{display:flex;gap:6px}
+
+/* DETAIL PANEL */
+#detailPanel{display:none;background:var(--card2);border:1px solid rgba(37,99,255,.3);border-radius:12px;padding:22px;margin-top:14px}
+.detail-head{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.dh-name{font-size:1.15rem;font-weight:700}
+.dh-token{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--yellow)}
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:700px){.detail-grid{grid-template-columns:1fr 1fr}}
+.dg-item{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;padding:12px}
+.dg-label{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--dim);letter-spacing:.1em;margin-bottom:5px}
+.dg-value{font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:700;color:var(--text)}
+
+/* HISTORY TABLE */
+.hist-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.hist-table th{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--dim);letter-spacing:.1em;text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+.hist-table td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+.hist-table tr:last-child td{border-bottom:none}
+.hist-table tr:hover td{background:rgba(255,255,255,.02)}
+.signal-pill{padding:2px 9px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;border:1px solid}
+.sp-buy{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:var(--green)}
+.sp-sell{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:var(--red)}
+.sp-wait{background:rgba(245,197,24,.1);border-color:rgba(245,197,24,.3);color:var(--yellow)}
+
+/* PRODUCT GRID */
+.prod-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:16px}
+.prod-admin-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative}
+.pac-name{font-weight:700;margin-bottom:4px}
+.pac-price{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--yellow);letter-spacing:.06em;margin-bottom:8px}
+.pac-meta{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--dim);margin-bottom:10px;line-height:1.6}
+.pac-actions{display:flex;gap:8px}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-bg.on{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:480px;position:relative;animation:mIn .2s ease;max-height:90vh;overflow-y:auto}
+@keyframes mIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.1em;color:var(--blue2);margin-bottom:18px;display:flex;align-items:center;justify-content:space-between}
+.modal-close{cursor:pointer;color:var(--dim);font-size:1.2rem;line-height:1}.modal-close:hover{color:var(--text)}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 18px;border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;pointer-events:none;animation:tin .3s ease;display:flex;align-items:center;gap:8px}
+.tok{background:rgba(34,197,94,.12);border:1.5px solid var(--green);color:var(--green)}
+.ter{background:rgba(239,68,68,.12);border:1.5px solid var(--red);color:var(--red)}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.errbox{display:none;padding:10px 14px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:#f87171;margin-top:10px}
+
+.copy-field{display:flex;gap:8px;align-items:center}
+.copy-field input{flex:1;font-family:'JetBrains Mono',monospace;font-size:.78rem}
+.copy-field .cp{padding:8px 12px;background:rgba(37,99,255,.1);border:1px solid rgba(37,99,255,.3);border-radius:7px;color:var(--blue2);font-family:'JetBrains Mono',monospace;font-size:.62rem;cursor:pointer;white-space:nowrap;font-weight:700;transition:all .2s}
+.copy-field .cp:hover{background:rgba(37,99,255,.2)}
+
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:#000}::-webkit-scrollbar-thumb{background:#222;border-radius:4px}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo"><div class="sb-icon">📡</div><div><div class="sb-name">NEXUS</div><div class="sb-role">● ADMIN PANEL</div></div></div>
+    </div>
+    <nav class="nav-links">
+      <div class="nav-link on" onclick="goto('overview')"><span class="ico">🏠</span>Overview</div>
+      <div class="nav-link" onclick="goto('tokens')"><span class="ico">🔑</span>Token Manager</div>
+      <div class="nav-link" onclick="goto('products')"><span class="ico">📦</span>Products</div>
+      <div class="nav-link" onclick="goto('config')"><span class="ico">⚙️</span>Config & API</div>
+      <div class="nav-link" onclick="goto('notif')"><span class="ico">📢</span>Notifikasi</div>
+    </nav>
+    <div class="sb-logout"><button class="logout-btn" onclick="doLogout()">⬅ LOGOUT</button></div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="pageTitle">OVERVIEW</div>
+      <div class="topbar-info">
+        <div class="admin-chip"><span class="dot"></span>ADMIN ACTIVE</div>
+        <!-- Mobile nav -->
+        <select onchange="goto(this.value)" style="background:#111;border:1px solid #333;color:#888;padding:5px 10px;border-radius:7px;font-size:.72rem;display:none" id="mobileNav">
+          <option value="overview">Overview</option>
+          <option value="tokens">Tokens</option>
+          <option value="products">Products</option>
+          <option value="config">Config</option>
+          <option value="notif">Notif</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ══ OVERVIEW ══ -->
+      <div class="section on" id="sec-overview">
+        <div class="overview-grid">
+          <div class="ov-card blue"><div class="ov-label">TOTAL TOKENS</div><div class="ov-num" id="ovTotal">—</div></div>
+          <div class="ov-card green"><div class="ov-label">TOKEN AKTIF</div><div class="ov-num" id="ovActive">—</div></div>
+          <div class="ov-card yellow"><div class="ov-label">TOTAL ANALISIS</div><div class="ov-num" id="ovAnalysis">—</div></div>
+          <div class="ov-card violet"><div class="ov-label">TOKEN EXPIRED</div><div class="ov-num" id="ovExpired">—</div></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title"><span class="bar"></span>TOKEN TERBARU</div><button class="btn btn-blue btn-sm" onclick="goto('tokens')">Lihat Semua</button></div>
+          <div id="ovTokenList"><div style="color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:.72rem">Loading...</div></div>
+        </div>
+      </div>
+
+      <!-- ══ TOKENS ══ -->
+      <div class="section" id="sec-tokens">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="bar"></span>TOKEN MANAGER</div>
+            <button class="btn btn-blue btn-sm" onclick="openAddToken()">+ Tambah Token</button>
+          </div>
+          <div id="tokenList"><div style="color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:20px 0">Loading...</div></div>
+        </div>
+        <div id="detailPanel"></div>
+      </div>
+
+      <!-- ══ PRODUCTS ══ -->
+      <div class="section" id="sec-products">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="bar"></span>PRODUK MANAGER</div>
+            <button class="btn btn-blue btn-sm" onclick="openAddProduct()">+ Tambah Produk</button>
+          </div>
+          <div class="prod-admin-grid" id="prodAdminGrid"><div style="color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:.72rem">Loading...</div></div>
+        </div>
+      </div>
+
+      <!-- ══ CONFIG ══ -->
+      <div class="section" id="sec-config">
+        <div class="card">
+          <div class="card-head"><div class="card-title"><span class="bar"></span>KONFIGURASI AI & SISTEM</div></div>
+          <div class="grid2">
+            <div class="field"><label>Gemini API Key</label><input type="password" id="cfGeminiKey" placeholder="AIzaSy-xxxxxxxx"><div class="field-hint">API key ini dipakai SEMUA user untuk analisis</div></div>
+            <div class="field"><label>Model Gemini</label>
+              <select id="cfGeminiModel">
+                <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash (Recommended)</option>
+                <option value="gemini-2.5-pro">Gemini 2.5 Pro (Powerful)</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash (Fast)</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Default Delay Analisis</label><input type="text" id="cfDelay" placeholder="Contoh: 1h / 30m / 0m"><div class="field-hint">0m = tidak ada delay. Format: Xm, Xh, Xd</div></div>
+            <div class="field"><label>Default Durasi Token</label><input type="text" id="cfDuration" placeholder="Contoh: 30d / 7d / 24h"><div class="field-hint">Durasi default saat generate token baru</div></div>
+          </div>
+          <button class="btn btn-blue" onclick="saveConfig()">💾 Simpan Konfigurasi</button>
+          <div class="errbox" id="cfErr"></div>
+        </div>
+      </div>
+
+      <!-- ══ NOTIF ══ -->
+      <div class="section" id="sec-notif">
+        <div class="card">
+          <div class="card-head"><div class="card-title"><span class="bar"></span>BROADCAST NOTIFIKASI KE SEMUA USER</div></div>
+          <div class="field"><label>Pesan Notifikasi</label><textarea id="notifMsg" placeholder="Tulis pesan yang akan tampil di banner semua user..." rows="4"></textarea><div class="field-hint">Notif akan tampil di halaman utama dan signal. Berlaku 24 jam setelah diset.</div></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-blue" onclick="sendNotif()">📢 Broadcast ke Semua User</button>
+            <button class="btn btn-ghost" onclick="clearNotif()">✕ Hapus Notif</button>
+          </div>
+          <div style="margin-top:16px;padding:12px;background:rgba(245,197,24,.06);border:1px solid rgba(245,197,24,.2);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--dim)">
+            ⚡ Notif disimpan di localStorage user. User yang sudah buka halaman sebelumnya perlu refresh untuk melihat notif baru.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: ADD TOKEN ══ -->
+<div class="modal-bg" id="modalAddToken">
+  <div class="modal">
+    <div class="modal-title">TAMBAH TOKEN <span class="modal-close" onclick="closeModal('modalAddToken')">✕</span></div>
+    <div class="field"><label>Nama Pemilik</label><input type="text" id="tName" placeholder="Contoh: Budi Santoso"></div>
+    <div class="grid2">
+      <div class="field"><label>Durasi</label><input type="text" id="tDuration" placeholder="30d / 7d / 24h"><div class="field-hint">Mulai hitung saat pertama dipakai</div></div>
+      <div class="field"><label>Delay Analisis</label><input type="text" id="tDelay" placeholder="1h / 30m / 0m"><div class="field-hint">Jeda antar analisis</div></div>
+    </div>
+    <div class="field"><label>Token Custom (Opsional)</label><input type="text" id="tCustom" placeholder="Kosongkan untuk auto-generate"><div class="field-hint">Jika dikosongkan, sistem akan generate otomatis</div></div>
+    <div class="errbox" id="addTErr"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalAddToken')">Batal</button>
+      <button class="btn btn-blue" onclick="doAddToken()">⚡ Generate Token</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: EDIT TOKEN ══ -->
+<div class="modal-bg" id="modalEditToken">
+  <div class="modal">
+    <div class="modal-title">EDIT TOKEN <span class="modal-close" onclick="closeModal('modalEditToken')">✕</span></div>
+    <input type="hidden" id="etToken">
+    <div class="field"><label>Nama Pemilik</label><input type="text" id="etName" placeholder="Nama pemilik token"></div>
+    <div class="grid2">
+      <div class="field"><label>Durasi</label><input type="text" id="etDuration" placeholder="30d / 7d / 24h"></div>
+      <div class="field"><label>Delay Analisis</label><input type="text" id="etDelay" placeholder="1h / 30m / 0m"></div>
+    </div>
+    <div class="field" style="flex-direction:row;align-items:center;gap:10px">
+      <input type="checkbox" id="etReset" style="width:auto;margin:0">
+      <label style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--dim);letter-spacing:.08em;text-transform:none;cursor:pointer" for="etReset">Reset waktu expired (user harus aktifkan ulang)</label>
+    </div>
+    <div class="errbox" id="editTErr"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalEditToken')">Batal</button>
+      <button class="btn btn-blue" onclick="doEditToken()">💾 Simpan Perubahan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: ADD PRODUCT ══ -->
+<div class="modal-bg" id="modalAddProd">
+  <div class="modal">
+    <div class="modal-title">TAMBAH PRODUK <span class="modal-close" onclick="closeModal('modalAddProd')">✕</span></div>
+    <div class="field"><label>Nama Produk</label><input type="text" id="pName" placeholder="Contoh: Token 30 Hari Pro"></div>
+    <div class="grid2">
+      <div class="field"><label>Harga</label><input type="text" id="pPrice" placeholder="Contoh: Rp 50.000"></div>
+      <div class="field"><label>Durasi Akses</label><input type="text" id="pDuration" placeholder="Contoh: 30 Hari"></div>
+    </div>
+    <div class="field"><label>Deskripsi</label><textarea id="pDesc" placeholder="Deskripsi produk..."></textarea></div>
+    <div class="field"><label>Link Beli (URL)</label><input type="text" id="pLink" placeholder="https://..."></div>
+    <div class="field"><label>Badge (Opsional)</label>
+      <select id="pBadge"><option value="">— Tidak Ada —</option><option value="hot">🔥 HOT</option><option value="popular">⭐ POPULAR</option><option value="new">✨ NEW</option></select>
+    </div>
+    <div class="errbox" id="addPErr"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalAddProd')">Batal</button>
+      <button class="btn btn-blue" onclick="doAddProduct()">➕ Tambah Produk</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: EDIT PRODUCT ══ -->
+<div class="modal-bg" id="modalEditProd">
+  <div class="modal">
+    <div class="modal-title">EDIT PRODUK <span class="modal-close" onclick="closeModal('modalEditProd')">✕</span></div>
+    <input type="hidden" id="epId">
+    <div class="field"><label>Nama Produk</label><input type="text" id="epName"></div>
+    <div class="grid2">
+      <div class="field"><label>Harga</label><input type="text" id="epPrice"></div>
+      <div class="field"><label>Durasi</label><input type="text" id="epDuration"></div>
+    </div>
+    <div class="field"><label>Deskripsi</label><textarea id="epDesc"></textarea></div>
+    <div class="field"><label>Link Beli</label><input type="text" id="epLink"></div>
+    <div class="field"><label>Badge</label>
+      <select id="epBadge"><option value="">— Tidak Ada —</option><option value="hot">🔥 HOT</option><option value="popular">⭐ POPULAR</option><option value="new">✨ NEW</option></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalEditProd')">Batal</button>
+      <button class="btn btn-blue" onclick="doEditProduct()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '/api/kv';
+const ADMIN_TOKEN = 'yokotoadminfx';
+
+// ── AUTH ─────────────────────────────────
+function checkAuth(){
+  const token=sessionStorage.getItem('nx_token');
+  const role=sessionStorage.getItem('nx_role');
+  if(token!==ADMIN_TOKEN||role!=='admin'){window.location.href='login.html';}
+}
+function doLogout(){sessionStorage.clear();window.location.href='login.html';}
+
+// ── API ───────────────────────────────────
+async function api(action,body={},method='POST'){
+  const r=await fetch(`${API}?action=${action}`,{
+    method,
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+ADMIN_TOKEN},
+    body:method!=='GET'?JSON.stringify(body):undefined
+  });
+  return r.json();
+}
+async function apiGet(action,params={}){
+  const q=new URLSearchParams({action,...params});
+  const r=await fetch(`${API}?${q}`,{headers:{'Authorization':'Bearer '+ADMIN_TOKEN}});
+  return r.json();
+}
+
+// ── NAV ───────────────────────────────────
+const TITLES={overview:'OVERVIEW',tokens:'TOKEN MANAGER',products:'PRODUK',config:'KONFIGURASI',notif:'NOTIFIKASI'};
+function goto(sec){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('on'));
+  document.getElementById('sec-'+sec).classList.add('on');
+  document.querySelector(`.nav-link[onclick="goto('${sec}')"]`)?.classList.add('on');
+  document.getElementById('pageTitle').textContent=TITLES[sec]||sec.toUpperCase();
+  if(sec==='tokens')loadTokens();
+  if(sec==='products')loadProducts();
+  if(sec==='config')loadConfig();
+  if(sec==='overview')loadOverview();
+}
+
+// ── OVERVIEW ─────────────────────────────
+async function loadOverview(){
+  const d=await api('admin.tokens.list');
+  const tokens=d.tokens||[];
+  const now=Date.now();
+  let active=0,expired=0,total_analysis=0;
+  tokens.forEach(t=>{
+    if(t.expires_at&&parseInt(t.expires_at)<now)expired++;
+    else if(t.activated_at)active++;
+    total_analysis+=parseInt(t.analysis_count||0);
+  });
+  document.getElementById('ovTotal').textContent=tokens.length;
+  document.getElementById('ovActive').textContent=active;
+  document.getElementById('ovAnalysis').textContent=total_analysis;
+  document.getElementById('ovExpired').textContent=expired;
+
+  // recent 5
+  const recent=tokens.slice(0,5);
+  document.getElementById('ovTokenList').innerHTML=recent.length?
+    recent.map(t=>tokenCardHTML(t)).join(''):
+    '<div style="color:var(--dim);font-family:\'JetBrains Mono\',monospace;font-size:.72rem;padding:12px 0">Belum ada token.</div>';
+}
+
+// ── TOKENS ───────────────────────────────
+let allTokens=[];
+async function loadTokens(){
+  const d=await api('admin.tokens.list');
+  allTokens=d.tokens||[];
+  renderTokenList(allTokens);
+}
+function renderTokenList(tokens){
+  const el=document.getElementById('tokenList');
+  if(!tokens.length){el.innerHTML='<div style="color:var(--dim);font-family:\'JetBrains Mono\',monospace;font-size:.72rem;padding:20px 0">Belum ada token. Klik "+ Tambah Token" untuk membuat.</div>';return;}
+  el.innerHTML='<div class="token-list">'+tokens.map(t=>tokenCardHTML(t)).join('')+'</div>';
+}
+function tokenCardHTML(t){
+  const now=Date.now();
+  let status='pending',statusLbl='BELUM AKTIF';
+  if(t.activated_at){
+    if(parseInt(t.expires_at)<now){status='expired';statusLbl='EXPIRED';}
+    else{status='active';statusLbl='AKTIF';}
+  }
+  const rem=t.expires_at?Math.max(0,parseInt(t.expires_at)-now):null;
+  const remStr=rem!=null?(rem===0?'—':fmtDur(rem)):'—';
+  return `<div class="token-card" onclick="showDetail('${t.token}')">
+    <div class="token-card-row">
+      <div class="tc-name">${esc(t.name||'—')}</div>
+      <div class="tc-token">${esc(t.token)}</div>
+      <div class="tc-status ${status}">${statusLbl}</div>
+      <div class="tc-meta">
+        <div class="tc-info">⏱️ ${esc(t.duration||'—')}</div>
+        <div class="tc-info">🔄 ${esc(t.delay||'0m')} delay</div>
+        <div class="tc-info">📊 ${t.analysis_count||0}x</div>
+        <div class="tc-info">⌛ ${remStr}</div>
+        <div class="tc-actions" onclick="event.stopPropagation()">
+          <button class="btn btn-yellow btn-sm" onclick="openEditToken('${t.token}')">✏️</button>
+          <button class="btn btn-red btn-sm" onclick="doDeleteToken('${t.token}','${esc(t.name)}')">🗑️</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function showDetail(token){
+  const t=allTokens.find(x=>x.token===token);
+  if(!t)return;
+  const now=Date.now();
+  let status='pending',statusLbl='BELUM AKTIF';
+  if(t.activated_at){if(parseInt(t.expires_at)<now){status='expired';statusLbl='EXPIRED';}else{status='active';statusLbl='AKTIF';}}
+
+  // Load history
+  const hd=await apiGet('admin.history.all',{token});
+  const history=(hd.history||[]).slice(0,20);
+
+  const panel=document.getElementById('detailPanel');
+  panel.style.display='block';
+  panel.innerHTML=`
+    <div class="detail-head">
+      <div><div class="dh-name">${esc(t.name||'—')}</div><div class="dh-token">${esc(t.token)}</div></div>
+      <div class="tc-status ${status}">${statusLbl}</div>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="document.getElementById('detailPanel').style.display='none'">✕ Tutup</button>
+    </div>
+    <div class="detail-grid">
+      <div class="dg-item"><div class="dg-label">DURASI</div><div class="dg-value">${esc(t.duration||'—')}</div></div>
+      <div class="dg-item"><div class="dg-label">DELAY ANALISIS</div><div class="dg-value">${esc(t.delay||'0m')}</div></div>
+      <div class="dg-item"><div class="dg-label">TOTAL ANALISIS</div><div class="dg-value">${t.analysis_count||0}x</div></div>
+      <div class="dg-item"><div class="dg-label">AKTIF SEJAK</div><div class="dg-value">${t.activated_at?fmtDate(parseInt(t.activated_at)):'—'}</div></div>
+      <div class="dg-item"><div class="dg-label">EXPIRED</div><div class="dg-value">${t.expires_at?fmtDate(parseInt(t.expires_at)):'—'}</div></div>
+      <div class="dg-item"><div class="dg-label">ANALISIS TERAKHIR</div><div class="dg-value">${t.last_analysis?fmtDate(parseInt(t.last_analysis)):'—'}</div></div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--dim);letter-spacing:.1em;margin-bottom:6px">COPY TOKEN</div>
+      <div class="copy-field">
+        <input type="text" value="${esc(t.token)}" readonly>
+        <button class="cp" onclick="cpText('${esc(t.token)}')">📋 COPY</button>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--dim);letter-spacing:.1em;margin-bottom:10px">HISTORI ANALISIS (20 TERAKHIR)</div>
+      ${history.length?`<div style="overflow-x:auto"><table class="hist-table">
+        <thead><tr><th>WAKTU</th><th>PAIR</th><th>TF</th><th>SIGNAL</th><th>CONFIDENCE</th></tr></thead>
+        <tbody>${history.map(h=>`<tr>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--dim)">${fmtDate(h.ts)}</td>
+          <td style="font-weight:700">${esc(h.pair||'—')}</td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:.72rem">${esc(h.tf||'—')}</td>
+          <td><span class="signal-pill sp-${(h.signal||'wait').toLowerCase()}">${esc(h.signal||'—')}</span></td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem">${h.confidence||'—'}%</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`:'<div style="color:var(--dim);font-family:\'JetBrains Mono\',monospace;font-size:.72rem;padding:12px 0">Belum ada histori analisis.</div>'}
+    </div>`;
+
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function openAddToken(){
+  const cfg=document.getElementById('cfDelay');
+  const defaultDelay=cfg?cfg.value||'0m':'0m';
+  document.getElementById('tName').value='';
+  document.getElementById('tDuration').value='';
+  document.getElementById('tDelay').value=defaultDelay;
+  document.getElementById('tCustom').value='';
+  document.getElementById('addTErr').style.display='none';
+  openModal('modalAddToken');
+}
+
+async function doAddToken(){
+  const name=document.getElementById('tName').value.trim();
+  const duration=document.getElementById('tDuration').value.trim();
+  const delay=document.getElementById('tDelay').value.trim()||'0m';
+  const custom=document.getElementById('tCustom').value.trim();
+  if(!name){showModalErr('addTErr','Nama wajib diisi!');return;}
+  if(!duration){showModalErr('addTErr','Durasi wajib diisi! Contoh: 30d');return;}
+  const d=await api('admin.tokens.add',{name,duration,delay,custom_token:custom||undefined});
+  if(!d.ok){showModalErr('addTErr',d.error);return;}
+  closeModal('modalAddToken');
+  toast('✓ Token berhasil dibuat: '+d.token,'ok');
+  loadTokens();loadOverview();
+}
+
+function openEditToken(token){
+  const t=allTokens.find(x=>x.token===token);
+  if(!t)return;
+  document.getElementById('etToken').value=token;
+  document.getElementById('etName').value=t.name||'';
+  document.getElementById('etDuration').value=t.duration||'';
+  document.getElementById('etDelay').value=t.delay||'0m';
+  document.getElementById('etReset').checked=false;
+  document.getElementById('editTErr').style.display='none';
+  openModal('modalEditToken');
+}
+
+async function doEditToken(){
+  const token=document.getElementById('etToken').value;
+  const name=document.getElementById('etName').value.trim();
+  const duration=document.getElementById('etDuration').value.trim();
+  const delay=document.getElementById('etDelay').value.trim();
+  const reset=document.getElementById('etReset').checked;
+  const d=await api('admin.tokens.edit',{token,name,duration,delay,reset_expiry:reset});
+  if(!d.ok){showModalErr('editTErr',d.error);return;}
+  closeModal('modalEditToken');
+  toast('✓ Token berhasil diupdate','ok');
+  loadTokens();
+}
+
+async function doDeleteToken(token,name){
+  if(!confirm(`Hapus token milik "${name}"?\n\nToken: ${token}\n\nAksi ini tidak dapat dibatalkan.`))return;
+  const d=await api('admin.tokens.delete',{token});
+  if(!d.ok){toast('Error: '+d.error,'e');return;}
+  toast('✓ Token dihapus','ok');
+  loadTokens();loadOverview();
+  document.getElementById('detailPanel').style.display='none';
+}
+
+// ── PRODUCTS ─────────────────────────────
+let allProducts=[];
+async function loadProducts(){
+  const d=await api('admin.products.list');
+  allProducts=d.products||[];
+  renderProducts();
+}
+function renderProducts(){
+  const grid=document.getElementById('prodAdminGrid');
+  if(!allProducts.length){
+    grid.innerHTML='<div style="color:var(--dim);font-family:\'JetBrains Mono\',monospace;font-size:.72rem;padding:20px 0">Belum ada produk. Klik "+ Tambah Produk".</div>';
+    return;
+  }
+  grid.innerHTML=allProducts.map(p=>`
+    <div class="prod-admin-card">
+      ${p.badge?`<div class="tc-status ${p.badge}" style="display:inline-block;margin-bottom:8px">${p.badge.toUpperCase()}</div>`:''}
+      <div class="pac-name">${esc(p.name)}</div>
+      <div class="pac-price">${esc(p.price)}</div>
+      <div class="pac-meta">⏱️ ${esc(p.duration||'—')}<br>🔗 ${esc(p.buy_link)}</div>
+      <div class="pac-actions">
+        <button class="btn btn-yellow btn-sm" onclick="openEditProduct('${esc(p.id)}')">✏️ Edit</button>
+        <button class="btn btn-red btn-sm" onclick="doDeleteProduct('${esc(p.id)}','${esc(p.name)}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function openAddProduct(){
+  ['pName','pPrice','pDuration','pDesc','pLink'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pBadge').value='';
+  document.getElementById('addPErr').style.display='none';
+  openModal('modalAddProd');
+}
+async function doAddProduct(){
+  const name=document.getElementById('pName').value.trim();
+  const price=document.getElementById('pPrice').value.trim();
+  const buy_link=document.getElementById('pLink').value.trim();
+  if(!name||!price||!buy_link){showModalErr('addPErr','Nama, Harga, dan Link Beli wajib diisi!');return;}
+  const d=await api('admin.products.add',{name,price,duration:document.getElementById('pDuration').value.trim(),description:document.getElementById('pDesc').value.trim(),buy_link,badge:document.getElementById('pBadge').value||undefined});
+  if(!d.ok){showModalErr('addPErr',d.error);return;}
+  closeModal('modalAddProd');toast('✓ Produk ditambahkan','ok');loadProducts();
+}
+function openEditProduct(id){
+  const p=allProducts.find(x=>x.id===id);if(!p)return;
+  document.getElementById('epId').value=id;
+  document.getElementById('epName').value=p.name||'';
+  document.getElementById('epPrice').value=p.price||'';
+  document.getElementById('epDuration').value=p.duration||'';
+  document.getElementById('epDesc').value=p.description||'';
+  document.getElementById('epLink').value=p.buy_link||'';
+  document.getElementById('epBadge').value=p.badge||'';
+  openModal('modalEditProd');
+}
+async function doEditProduct(){
+  const id=document.getElementById('epId').value;
+  const d=await api('admin.products.edit',{id,name:document.getElementById('epName').value.trim(),price:document.getElementById('epPrice').value.trim(),duration:document.getElementById('epDuration').value.trim(),description:document.getElementById('epDesc').value.trim(),buy_link:document.getElementById('epLink').value.trim(),badge:document.getElementById('epBadge').value||undefined});
+  if(!d.ok){toast('Error: '+d.error,'e');return;}
+  closeModal('modalEditProd');toast('✓ Produk diupdate','ok');loadProducts();
+}
+async function doDeleteProduct(id,name){
+  if(!confirm(`Hapus produk "${name}"?`))return;
+  const d=await api('admin.products.delete',{id});
+  if(!d.ok){toast('Error: '+d.error,'e');return;}
+  toast('✓ Produk dihapus','ok');loadProducts();
+}
+
+// ── CONFIG ────────────────────────────────
+async function loadConfig(){
+  const d=await api('admin.config.get');
+  const c=d.config||{};
+  document.getElementById('cfGeminiKey').value=c.gemini_key||'';
+  document.getElementById('cfGeminiModel').value=c.gemini_model||'gemini-2.5-flash';
+  document.getElementById('cfDelay').value=c.default_delay||'0m';
+  document.getElementById('cfDuration').value=c.default_duration||'30d';
+}
+async function saveConfig(){
+  const key=document.getElementById('cfGeminiKey').value.trim();
+  const model=document.getElementById('cfGeminiModel').value;
+  const delay=document.getElementById('cfDelay').value.trim()||'0m';
+  const duration=document.getElementById('cfDuration').value.trim()||'30d';
+  if(!key){document.getElementById('cfErr').style.display='block';document.getElementById('cfErr').textContent='⚠️ Gemini API Key wajib diisi!';return;}
+  const d=await api('admin.config.set',{gemini_key:key,gemini_model:model,default_delay:delay,default_duration:duration});
+  if(!d.ok){document.getElementById('cfErr').style.display='block';document.getElementById('cfErr').textContent='Error: '+d.error;return;}
+  document.getElementById('cfErr').style.display='none';
+  toast('✓ Konfigurasi tersimpan!','ok');
+}
+
+// ── NOTIF ─────────────────────────────────
+function sendNotif(){
+  const msg=document.getElementById('notifMsg').value.trim();
+  if(!msg){toast('Tulis pesan notif terlebih dahulu!','e');return;}
+  // Store in localStorage — all users will see via polling on their side
+  // Also save via KV for persistence
+  api('admin.config.set',{notif_msg:msg,notif_ts:Date.now().toString()});
+  // Broadcast: store in a way users can read
+  // Users check localStorage key 'nx_notif' — set via a shared mechanism
+  // Since we use KV, users will fetch on load
+  toast('✓ Notifikasi di-broadcast! User akan melihat saat refresh/buka halaman.','ok');
+}
+function clearNotif(){
+  api('admin.config.set',{notif_msg:'',notif_ts:'0'});
+  document.getElementById('notifMsg').value='';
+  toast('✓ Notifikasi dihapus','ok');
+}
+
+// ── HELPERS ───────────────────────────────
+function openModal(id){document.getElementById(id).classList.add('on')}
+function closeModal(id){document.getElementById(id).classList.remove('on')}
+function showModalErr(id,msg){const e=document.getElementById(id);e.style.display='block';e.textContent='⚠️ '+msg}
+function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function fmtDate(ts){const d=new Date(ts);return d.toLocaleDateString('id-ID')+' '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}
+function fmtDur(ms){const d=Math.floor(ms/86400000);const h=Math.floor((ms%86400000)/3600000);const m=Math.floor((ms%3600000)/60000);if(d>0)return d+'h '+h+'j';if(h>0)return h+'j '+m+'m';return m+'m'}
+function cpText(text){navigator.clipboard.writeText(text).then(()=>toast('✓ Copied!','ok'))}
+function toast(msg,type){
+  const el=document.createElement('div');el.className='toast '+(type==='ok'?'tok':'ter');el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300);},3200);
+}
+
+// Mobile nav
+if(window.innerWidth<=900)document.getElementById('mobileNav').style.display='block';
+
+// Close modal on bg click
+document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('on')}));
+
+checkAuth();
+loadOverview();
+</script>
+</body>
+</html>
