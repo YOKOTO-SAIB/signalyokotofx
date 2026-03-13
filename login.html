@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — NEXUS SIGNAL</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000;--card:#0d0d0d;--border:#1c1c1c;
+  --blue:#2563ff;--blue2:#60a5fa;--yellow:#f5c518;--green:#22c55e;--red:#ef4444;
+  --text:#fff;--dim:#888;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 50% 60% at 50% 50%,rgba(37,99,255,.08),transparent 70%),
+  repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,.012) 40px),
+  repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,.012) 40px);}
+
+.box{position:relative;z-index:1;width:100%;max-width:420px}
+
+.back{display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--dim);letter-spacing:.1em;text-decoration:none;margin-bottom:32px;transition:color .2s}
+.back:hover{color:var(--text)}
+
+.logo-wrap{text-align:center;margin-bottom:36px}
+.logo-icon{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--blue),#1d4ed8);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px;box-shadow:0 0 32px rgba(37,99,255,.35);animation:glow 3s ease-in-out infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(37,99,255,.3)}50%{box-shadow:0 0 48px rgba(37,99,255,.6)}}
+.logo-name{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.16em;background:linear-gradient(90deg,#fff,var(--blue2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-sub{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--dim);letter-spacing:.18em;margin-top:4px}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:32px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:30px;right:30px;height:1px;background:linear-gradient(90deg,transparent,rgba(37,99,255,.5),transparent)}
+
+.card-title{font-weight:700;font-size:1.15rem;margin-bottom:6px}
+.card-sub{font-size:.85rem;color:var(--dim);margin-bottom:28px;line-height:1.5}
+
+label{display:block;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+
+.input-wrap{position:relative;margin-bottom:8px}
+.input-wrap input{
+  width:100%;padding:13px 48px 13px 16px;
+  background:rgba(255,255,255,.04);border:1.5px solid var(--border);border-radius:10px;
+  color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.95rem;
+  outline:none;transition:border-color .2s,box-shadow .2s;letter-spacing:.05em;
+}
+.input-wrap input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,255,.12)}
+.input-wrap input::placeholder{color:var(--dim);letter-spacing:.02em}
+.eye-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--dim);cursor:pointer;font-size:1rem;padding:4px;transition:color .2s}
+.eye-btn:hover{color:var(--text)}
+
+.hint{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--dim);margin-bottom:24px}
+
+.btn-login{
+  width:100%;padding:14px;background:var(--blue);border:none;border-radius:10px;
+  color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.95rem;
+  cursor:pointer;transition:all .25s;position:relative;overflow:hidden;
+}
+.btn-login::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transition:left .5s}
+.btn-login:hover:not(:disabled)::before{left:100%}
+.btn-login:hover:not(:disabled){background:#1d4ed8;box-shadow:0 0 24px rgba(37,99,255,.4)}
+.btn-login:disabled{opacity:.5;cursor:not-allowed}
+
+.errbox{display:none;margin-top:14px;padding:12px 16px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#f87171;line-height:1.6}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.divider{height:1px;background:var(--border);margin:24px 0;position:relative}
+.divider span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card);padding:0 12px;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--dim);letter-spacing:.1em}
+
+.buy-link{display:block;text-align:center;padding:12px;border:1.5px solid var(--border);border-radius:10px;color:var(--dim);font-size:.88rem;text-decoration:none;transition:all .2s}
+.buy-link:hover{border-color:var(--yellow);color:var(--yellow)}
+</style>
+</head>
+<body>
+
+<div class="box">
+  <a href="index.html" class="back">← KEMBALI KE BERANDA</a>
+
+  <div class="logo-wrap">
+    <div class="logo-icon">📡</div>
+    <div class="logo-name">NEXUS SIGNAL</div>
+    <div class="logo-sub">AI TRADING INTELLIGENCE</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Masuk dengan Token</div>
+    <div class="card-sub">Masukkan token yang kamu beli untuk mengakses fitur analisis AI. Token aktif otomatis saat pertama digunakan.</div>
+
+    <label for="tokenInput">Token Akses</label>
+    <div class="input-wrap">
+      <input type="password" id="tokenInput" placeholder="NX-xxxxxxxxxxxxxxxx" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="eye-btn" onclick="toggleEye()" id="eyeBtn">👁️</button>
+    </div>
+    <div class="hint">Contoh: NX-AbC123xYz789</div>
+
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">🔑 Masuk</button>
+    <div class="errbox" id="errBox"></div>
+
+    <div class="divider"><span>BELUM PUNYA TOKEN?</span></div>
+    <a href="index.html#products" class="buy-link">🛒 Beli Token Sekarang</a>
+  </div>
+</div>
+
+<script>
+const API = '/api/kv';
+let visible = false;
+
+function toggleEye() {
+  visible = !visible;
+  const inp = document.getElementById('tokenInput');
+  inp.type = visible ? 'text' : 'password';
+  document.getElementById('eyeBtn').textContent = visible ? '🙈' : '👁️';
+}
+
+async function doLogin() {
+  const token = document.getElementById('tokenInput').value.trim();
+  if (!token) { showErr('Masukkan token terlebih dahulu.'); return; }
+
+  const btn = document.getElementById('loginBtn');
+  btn.innerHTML = '<span class="spinner"></span>Memverifikasi...';
+  btn.disabled = true;
+  hideErr();
+
+  try {
+    const r = await fetch(`${API}?action=token.validate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token })
+    });
+    const d = await r.json();
+
+    if (!d.ok) { showErr(d.error || 'Token tidak valid.'); return; }
+
+    // Store session
+    sessionStorage.setItem('nx_token', token);
+    sessionStorage.setItem('nx_role', d.role);
+    if (d.role === 'user') {
+      sessionStorage.setItem('nx_session', JSON.stringify(d));
+    }
+
+    // Redirect
+    if (d.role === 'admin') {
+      window.location.href = 'admin.html';
+    } else {
+      window.location.href = 'signal.html';
+    }
+
+  } catch(e) {
+    showErr('Gagal terhubung ke server. Coba lagi.');
+  } finally {
+    btn.innerHTML = '🔑 Masuk';
+    btn.disabled = false;
+  }
+}
+
+function showErr(m) {
+  const b = document.getElementById('errBox');
+  b.style.display = 'block';
+  b.textContent = '⚠️ ' + m;
+}
+function hideErr() {
+  document.getElementById('errBox').style.display = 'none';
+}
+
+// Auto-redirect if already logged in
+const role = sessionStorage.getItem('nx_role');
+if (role === 'admin') window.location.href = 'admin.html';
+else if (role === 'user') window.location.href = 'signal.html';
+</script>
+</body>
+</html>
